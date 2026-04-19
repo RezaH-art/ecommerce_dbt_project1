@@ -1,0 +1,58 @@
+version: 2
+
+models:
+
+  - name: fact_sales
+    description: Fact table containing sales transactions
+    columns:
+
+      # 🔑 primary key
+      - name: order_id
+        description: Unique identifier for each order
+        tests:
+          - not_null
+          - unique
+
+      # 📌 foreign key - customer
+      - name: customer_id
+        description: References customer dimension
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+
+      # 📌 foreign key - product
+      - name: product_id
+        description: References product dimension
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_products')
+                field: product_id
+      - name: order_status
+        tests:
+        - accepted_values:
+            arguments:
+              values: ['completed', 'pending', 'cancelled']
+
+  - name: dim_customers
+    description: Customer dimension table
+    columns:
+      - name: customer_id
+        description: Unique customer identifier
+        tests:
+          - not_null
+          - unique
+
+
+  - name: dim_products
+    description: Product dimension table
+    columns:
+      - name: product_id
+        description: Unique product identifier
+        tests:
+          - not_null
+          - unique

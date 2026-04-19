@@ -1,0 +1,17 @@
+version: 2
+
+sources:
+  - name: analytics
+    database: ECOMMERCE
+    schema: ANALYTICS
+    tables:
+      - name: fact_sales
+      - name: dim_products
+      - name: dim_customers 
+
+  - name: raw
+    database: ECOMMERCE
+    schema: RAW
+    tables:
+      - name: fact_sales
+      - name: raw_orders     
