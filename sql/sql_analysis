@@ -1,12 +1,8 @@
 --1 Total revenue per day--
-SELECT COUNT(*) FROM fact_sales;
-SELECT COUNT(*) FROM dim_customers;
-SELECT COUNT(*) FROM dim_products;
-
 SELECT
     order_date,
     SUM(total_price) AS total_revenue
-FROM fact_sales
+FROM ECOMMERCE.RAW_ANALYTICS.FACT_SALES
 GROUP BY order_date
 ORDER BY order_date;
 
@@ -15,11 +11,12 @@ SELECT
     fs.product_id,
     dp.product_category_name,
     SUM(fs.total_price) AS revenue
-FROM fact_sales fs
-JOIN dim_products dp
+FROM ECOMMERCE.RAW_ANALYTICS.FACT_SALES fs
+JOIN ECOMMERCE.RAW_ANALYTICS.DIM_PRODUCTS dp
     ON fs.product_id = dp.product_id
 WHERE fs.order_date >= (
-    SELECT DATEADD(DAY, -30, MAX(order_date)) FROM fact_sales
+    SELECT DATEADD(DAY, -30, MAX(order_date))
+    FROM ECOMMERCE.RAW_ANALYTICS.FACT_SALES
 )
 GROUP BY
     fs.product_id,
@@ -29,25 +26,33 @@ LIMIT 5;
 
 --3 Monthly active customers--
 SELECT
-    DATE_TRUNC('month', order_date) AS month,
-    COUNT(DISTINCT customer_id) AS active_customers
-FROM fact_sales
-GROUP BY 1
-ORDER BY 1;
+    DATE_TRUNC('month', fs.order_date) AS month,
+    COUNT(DISTINCT fs.customer_id) AS active_customers
+FROM ECOMMERCE.RAW_ANALYTICS.FACT_SALES fs
+GROUP BY DATE_TRUNC('month', fs.order_date)
+ORDER BY month;
 
 --4 Average order value per customer--
 SELECT
-    customer_id,
-    AVG(total_price) AS avg_order_value
-FROM fact_sales
-GROUP BY customer_id;
+    fs.customer_id,
+    AVG(fs.total_price) AS avg_order_value
+FROM ECOMMERCE.RAW_ANALYTICS.FACT_SALES fs
+GROUP BY fs.customer_id
+ORDER BY avg_order_value DESC;
 
 --5 Data Anomaly--
 -- price <= 0
-SELECT * FROM fact_sales WHERE price <= 0;
+SELECT *
+FROM ECOMMERCE.RAW_ANALYTICS.FACT_SALES
+WHERE TOTAL_PRICE <= 0;
 
 -- quantity <= 0
-SELECT * FROM fact_sales WHERE quantity <= 0;
+SELECT *
+FROM ECOMMERCE.RAW_ANALYTICS.FACT_SALES
+WHERE quantity <= 0;
+
 
 -- missing customer
-SELECT * FROM fact_sales WHERE customer_id IS NULL;
+SELECT *
+FROM ECOMMERCE.RAW_ANALYTICS.FACT_SALES
+WHERE customer_id IS NULL;
